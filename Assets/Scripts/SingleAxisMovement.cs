@@ -7,29 +7,40 @@ public class SingleAxisMovement : MonoBehaviour
     [SerializeField] private Rigidbody2D rb2d;
     [SerializeField] private float xVelocity;
     [SerializeField] private float yVelocity;
+    [SerializeField] private float speed;
     private Vector3 mousePosition;
     private string Axis;
     private RaycastHit2D hitOrMiss;
+    private Vector2 mousePositionY;
+    private bool mouseDown;
+    private Vector2 endPoint; 
     void Start() {
         rb2d = GetComponent<Rigidbody2D>();
     }
 
     void Update() {
         if (Input.GetMouseButtonDown(0)) {
-            Vector3 mousePosition3D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 mousePosition = new Vector2(mousePosition3D.x, mousePosition3D.y);
+            mouseDown = true;
+        } else if (Input.GetMouseButtonUp(0)) {
+            mouseDown = false;
+        }
 
-            hitOrMiss = Physics2D.Raycast(mousePosition, Vector2.zero);
-        }
-        if (hitOrMiss.collider != null) {
-            if (hitOrMiss.collider.gameObject.tag == "Car") {
-            Debug.Log("Works!");
-            }
-        }
+        Vector3 mousePosition3D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mousePosition = new Vector2(mousePosition3D.x, mousePosition3D.y);
+
+        hitOrMiss = Physics2D.Raycast(mousePosition, Vector2.zero);
+
+        mousePositionY = new Vector2(transform.position.x, mousePosition.y);
+
+        endPoint = new Vector2(transform.position.x, mousePosition.y);
     }
 
     void FixedUpdate() {
-
+        if (hitOrMiss.collider != null) {
+            if (hitOrMiss.collider.gameObject.tag == "Car" && mouseDown) {
+                transform.position = Vector3.MoveTowards(transform.position, endPoint, speed * Time.deltaTime);
+            }
+        }
     }
 
     void OnMouseDrag() {
