@@ -7,7 +7,7 @@ public class SingleAxisMovement : MonoBehaviour
     [SerializeField] private Rigidbody2D rb2d;
     [SerializeField] private float xVelocity;
     [SerializeField] private float yVelocity;
-    [SerializeField] private float speed;
+    [SerializeField] private Vector2 speed;
     private Vector3 mousePosition;
     private string Axis;
     private RaycastHit2D hitOrMiss;
@@ -19,12 +19,14 @@ public class SingleAxisMovement : MonoBehaviour
     }
 
     void Update() {
-        if (Input.GetMouseButtonDown(0)) {
-            mouseDown = true;
-        } else if (Input.GetMouseButtonUp(0)) {
-            mouseDown = false;
+        if (hitOrMiss.collider != null) {
+            if (hitOrMiss.collider.gameObject.tag == "Car" && Input.GetMouseButtonDown(0)) {
+                mouseDown = true;
+            } else if (Input.GetMouseButtonUp(0)) {
+                mouseDown = false;
+            }
         }
-
+        
         Vector3 mousePosition3D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 mousePosition = new Vector2(mousePosition3D.x, mousePosition3D.y);
 
@@ -36,14 +38,12 @@ public class SingleAxisMovement : MonoBehaviour
     }
 
     void FixedUpdate() {
-        if (hitOrMiss.collider != null) {
-            if (hitOrMiss.collider.gameObject.tag == "Car" && mouseDown) {
-                transform.position = Vector3.MoveTowards(transform.position, endPoint, speed * Time.deltaTime);
-            }
+        if (mouseDown) {
+            
         }
     }
 
     void OnMouseDrag() {
-        
+        rb2d.MovePosition(rb2d.position + speed * Time.fixedDeltaTime);
     }
 }
