@@ -13,6 +13,7 @@ public class SingleAxisMovement : MonoBehaviour
     private string Axis;
     private RaycastHit2D mouseCast;
     private RaycastHit2D[] vehicleCast = new RaycastHit2D[2];
+    private Vector2[] vehicleCastPoint = new Vector2[2];
     private Vector2 mousePositionY;
     private bool mouseDown;
     private Vector2 endPoint; 
@@ -23,11 +24,13 @@ public class SingleAxisMovement : MonoBehaviour
     void Update() {
         Vector3 mousePosition3D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 mousePosition = new Vector2(mousePosition3D.x, mousePosition3D.y);
+        vehicleCastPoint[0] = new Vector2(transform.position.x, transform.position.y - 1);
+        vehicleCastPoint[1] = new Vector2(transform.position.x, transform.position.y + 1);
         
 
         mouseCast = Physics2D.Raycast(mousePosition, Vector2.zero);
-        vehicleCast[0] = Physics2D.Raycast(transform.position, Vector2.down);
-        vehicleCast[1] = Physics2D.Raycast(transform.position, Vector2.up);
+        vehicleCast[0] = Physics2D.Raycast(vehicleCastPoint[0], Vector2.down);
+        vehicleCast[1] = Physics2D.Raycast(vehicleCastPoint[1], Vector2.up);
     
         mousePositionY = new Vector2(transform.position.x, mousePosition.y);
 
@@ -53,6 +56,6 @@ public class SingleAxisMovement : MonoBehaviour
             if (vehicleCast[0].collider.gameObject.tag == "Barrier") {
                 Debug.Log(vehicleCast[0].distance);
             }
-        }
+        } 
     }
 }
