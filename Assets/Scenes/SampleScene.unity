@@ -3890,7 +3890,7 @@ MonoBehaviour:
   rb2d: {fileID: 1988593229}
   xVelocity: 0
   yVelocity: 0
-  speed: 50
+  speed: {x: 0, y: 0.5}
 --- !u!50 &1988593229
 Rigidbody2D:
   serializedVersion: 4
