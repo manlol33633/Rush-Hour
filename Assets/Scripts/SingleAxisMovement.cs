@@ -5,38 +5,69 @@ using UnityEngine;
 public class SingleAxisMovement : MonoBehaviour
 {
     [SerializeField] private Rigidbody2D rb2d;
-    [SerializeField] private float xVelocity;
-    [SerializeField] private float yVelocity;
-    [SerializeField] private Vector2 speed;
-    [SerializeField] private int[] rangeMap = new int[2];
-    [SerializeField] private int carType;
+    [SerializeField] private string Axis;
+    [SerializeField] private int type;
     private Vector3 mousePosition;
-    private string Axis;
-    private RaycastHit2D mouseCast;
-    private RaycastHit2D[] vehicleCast = new RaycastHit2D[2];
-    private Vector2[] vehicleCastPoint = new Vector2[2];
     private Vector2 mousePositionY;
+    private Vector2 mousePositionX;
     private bool mouseDown;
-    private Vector2 endPoint;
+    private Vector2 verticalLock;
+    private Vector2 horizontalLock;
+    private Vector2 initialPosition;
+    public static bool isRestart = false;
     void Start() {
         rb2d = GetComponent<Rigidbody2D>();
+        initialPosition = transform.position;
     }
 
     void Update() {
         Vector3 mousePosition3D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 mousePosition = new Vector2(mousePosition3D.x, mousePosition3D.y);
-        vehicleCastPoint[0] = new Vector2(transform.position.x, transform.position.y - 2);
-        vehicleCastPoint[1] = new Vector2(transform.position.x, transform.position.y + 2);
-        
-        mouseCast = Physics2D.Raycast(mousePosition, Vector2.zero);
-        vehicleCast[0] = Physics2D.Raycast(vehicleCastPoint[0], Vector2.down);
-        vehicleCast[1] = Physics2D.Raycast(vehicleCastPoint[1], Vector2.up);
     
         mousePositionY = new Vector2(transform.position.x, mousePosition.y);
+        mousePositionX = new Vector2(mousePosition.x, transform.position.y);
 
-        endPoint = new Vector2(transform.position.x, mousePosition.y);
-
+        switch (type) {
+            case 2:
+                verticalLock = new Vector2(transform.position.x, Mathf.Round(transform.position.y));
+                horizontalLock = new Vector2(Mathf.Round(transform.position.x), transform.position.y);
+                break;
+            case 3:
+                switch (Axis) {
+                    case "Vertical":
+                        if (transform.position.y > Mathf.Round(transform.position.y)) {
+                            verticalLock = new Vector2(transform.position.x, Mathf.Round(transform.position.y) + 0.5f);
+                        } else if (transform.position.y < Mathf.Round(transform.position.y)) {
+                            verticalLock = new Vector2(transform.position.x, Mathf.Round(transform.position.y) - 0.5f);
+                        }
+                    break;
+                    case "Horizontal":
+                        if (transform.position.x > Mathf.Round(transform.position.x)) {
+                            horizontalLock = new Vector2(Mathf.Round(transform.position.x) + 0.5f, transform.position.y);
+                        } else if (transform.position.x < Mathf.Round(transform.position.x)){
+                            horizontalLock = new Vector2(Mathf.Round(transform.position.x) - 0.5f, transform.position.y);
+                        }
+                        break;
+                }
+                break;
+        }
         
+
+        if (Input.GetMouseButtonUp(0)) {
+            switch (Axis) {
+                case "Vertical":
+                    transform.position = verticalLock;
+                    break;
+                case "Horizontal":
+                    transform.position = horizontalLock;
+                    break;
+            }
+        }
+
+        if (isRestart) {
+            transform.position = initialPosition;
+            isRestart = false;
+        }
     }
 
     void FixedUpdate() {
@@ -44,24 +75,13 @@ public class SingleAxisMovement : MonoBehaviour
     }
 
     void OnMouseDrag() {
-        if (mousePositionY.y >= rangeMap[0] && mousePositionY.y <= rangeMap[1]) {
-            rb2d.MovePosition(mousePositionY);
+        switch (Axis) {
+            case "Vertical":
+                rb2d.MovePosition(mousePositionY);
+                break;
+            case "Horizontal":
+                rb2d.MovePosition(mousePositionX);
+                break;
         }
-        if (mousePositionY.y <= rangeMap[0]) {
-            transform.position = new Vector2(transform.position.x, rangeMap[0]);
-        } else if (mousePositionY.y >= rangeMap[1]) {
-            transform.position = new Vector2(transform.position.x, rangeMap[1]);
-        }
-        if (vehicleCast[0].collider != null) {
-            if (vehicleCast[0].collider.gameObject.tag == "Car") {
-                if (vehicleCast[0].distance <= 0.1) {
-
-                }
-            }
-        } 
-    }
-
-    void lockOn() {
-        
     }
 }
